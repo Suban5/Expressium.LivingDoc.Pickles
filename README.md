@@ -15,7 +15,7 @@ providing clear visibility into the current state of product quality.
      style="display: block; margin-left: auto; margin-right: auto; width: 80%;" />
 </p>
 
-**Example:** [https://expressium.dev/reqnroll/LivingDoc.html](https://expressium.dev/reqnroll/LivingDoc.html)
+**Example:** [https://expressium.dev/LivingDoc/LivingDoc.html](https://expressium.dev/LivingDoc/LivingDoc.html)
 
 ## Getting Started
 Once you have created a ReqnRoll test project, integrating Expressium LivingDoc is straightforward.
