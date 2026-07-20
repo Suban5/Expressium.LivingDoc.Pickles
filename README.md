@@ -26,6 +26,11 @@ The formatter configuration supports relative paths and predefined ReqnRoll subs
 * Setup the Expressium formatters properties in the ReqnRoll configuration in the test project...
 * Run the tests in the ReqnRoll test project and open the HTML report in the output directory...
 
+***NuGet Package***
+```bash
+dotnet add package Expressium.LivingDoc.ReqnrollPlugin
+```
+
 ***ReqnRoll.json***
 ```json
 {
