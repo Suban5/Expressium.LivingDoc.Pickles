@@ -301,7 +301,7 @@ namespace Expressium.LivingDoc.Generators
                 listOfLines.Add("<button class='scenario-stacktraces bi bi-code-slash' title='Toggle Stacktrace' onclick=\"toggleStacktraces(this)\"></button>");
 
             if (example.History.Count > 0)
-                listOfLines.Add("<button class='scenario-history bi bi-calendar4' title='Toggle History' onclick=\"toggleHistory(this)\"></button>");
+                listOfLines.Add("<button class='scenario-history bi bi-clock' title='Toggle History' onclick=\"toggleHistory(this)\"></button>");
 
             if (example.Attachments.Count > 0)
                 listOfLines.Add("<button class='scenario-attachments bi bi-list' title='Toggle Attachments' onclick=\"toggleAttachments(this)\"></button>");
