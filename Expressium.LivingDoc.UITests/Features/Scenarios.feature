@@ -146,8 +146,8 @@ Scenario: Sort by Order Column in the Scenarios List
 		| Scenarios                                        |
 		| Successful Resubmitting a Contact Us Inquiry     |
 		| Successful User Login with Valid Credentials     |
-		| Unsuccessful User Login with Invalid Credentials |
 		| Successful Canceling a Registration Inquiry      |
+		| Unsuccessful User Login with Invalid Credentials |
 
 Scenario: Sort by Duration Column in the Scenarios List
 	Given I have navigated to the Scenarios List
@@ -156,8 +156,8 @@ Scenario: Sort by Duration Column in the Scenarios List
 	And I sort the scenarios by Duration column in the Scenarios List
 	Then I should have following visible objects in the Scenarios List
 		| Scenarios                                        |
-		| Successful User Login with Valid Credentials     |
 		| Unsuccessful User Login with Invalid Credentials |
+		| Successful User Login with Valid Credentials     |
 		| Successful Resubmitting a Contact Us Inquiry     |
 		| Successful Canceling a Registration Inquiry      |
 
