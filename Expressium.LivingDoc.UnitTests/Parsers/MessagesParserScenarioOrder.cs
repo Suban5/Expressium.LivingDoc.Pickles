@@ -13,7 +13,7 @@ namespace Expressium.LivingDoc.UnitTests.Parsers
 
         [OneTimeSetUp] 
         public void SetUp() {
-            var inputFilePath = Path.Combine(Directory.GetCurrentDirectory(), "CCK", "Samples", "all-statuses", "all-statuses.ndjson");
+            var inputFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Samples", "scenario-order.ndjson");
 
             var messagesParser = new MessagesParser();
             livingDocProject = messagesParser.ConvertToLivingDoc(inputFilePath);
