@@ -41,17 +41,37 @@ namespace Expressium.LivingDoc.Parsers
 
             // Assign Scenario Execution Order...
             int orderId = 1;
-            foreach (var pickle in messages.Pickles)
+            // foreach (var pickle in messages.Pickles)
+            // {
+            //     var astNodeId = pickle.AstNodeIds.FirstOrDefault();
+            // 
+            //     var scenario = livingDocProject.Features
+            //         .SelectMany(feature => feature.Scenarios)
+            //         .FirstOrDefault(s => s.Id == astNodeId);
+            // 
+            //     if (scenario != null)
+            //         if (scenario.Order == 0)
+            //             scenario.Order = orderId++;
+            // }
+
+            var sortedTestCaseStarted = messages.TestCaseStarted.OrderBy(testCase => testCase.Timestamp.ToDateTime());
+            foreach (var testCaseStarted in sortedTestCaseStarted)
             {
-                var astNodeId = pickle.AstNodeIds.FirstOrDefault();
+                var testCaseId = testCaseStarted.TestCaseId;
+                var testCase = messages.TestCases.Find(t => t.Id == testCaseId);
+                var pickleId = testCase.PickleId;
+
+                var pickle = messages.Pickles.Find(p => p.Id == pickleId);
+                var scenarioId = pickle.AstNodeIds.FirstOrDefault();
 
                 var scenario = livingDocProject.Features
                     .SelectMany(feature => feature.Scenarios)
-                    .FirstOrDefault(s => s.Id == astNodeId);
+                    .FirstOrDefault(s => s.Id == scenarioId);
 
                 if (scenario != null)
                     if (scenario.Order == 0)
                         scenario.Order = orderId++;
+
             }
         }
 
