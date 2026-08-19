@@ -41,6 +41,8 @@ namespace Expressium.LivingDoc.Parsers
 
             // Assign Scenario Execution Order...
             int orderId = 1;
+
+            // Original implementation order by Scenario Id...
             // foreach (var pickle in messages.Pickles)
             // {
             //     var astNodeId = pickle.AstNodeIds.FirstOrDefault();
@@ -71,7 +73,6 @@ namespace Expressium.LivingDoc.Parsers
                 if (scenario != null)
                     if (scenario.Order == 0)
                         scenario.Order = orderId++;
-
             }
         }
 

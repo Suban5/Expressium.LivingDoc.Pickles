@@ -21,19 +21,19 @@
 
         /* Header */
         --color-text-header: var(--bs-gray-900);
-        --color-bg-header: #d4dfec;
+        --color-bg-header: #dfe7f2; /* #d4dfec */
 
         /* Footer */
         --color-text-footer: var(--bs-gray-600);
-        --color-bg-footer: var(--bs-gray-125);
+        --color-bg-footer: var(--bs-gray-100);
 
         /* Navigation */
         --color-text-navigation: var(--bs-gray-900);
-        --color-bg-navigation: var(--bs-gray-125);
+        --color-bg-navigation: var(--bs-gray-100);
         --color-bg-navigation-indicator: var(--bs-gray-500);
 
         /* Tables */
-        --color-bg-table-header: var(--bs-gray-125);
+        --color-bg-table-header: var(--bs-gray-100);
         --color-border-table-header: var(--bs-white);
 
         /* Groups */
@@ -46,7 +46,7 @@
 
         /* Surfaces */
         --color-bg-hover: #F5F8FC;
-        --color-bg-selected: #EDF3F9;
+        --color-bg-selected: #EEF4FA;
 
         /* Scrollbars */
         --color-text-scrollbar: #969696;
@@ -77,7 +77,7 @@
         --color-bg-button-inactive: var(--bs-gray-090);
         --color-border-button-inactive: var(--bs-gray-300);
         --color-text-button-hover: var(--bs-gray-900);
-        --color-bg-button-hover: var(--bs-gray-125);
+        --color-bg-button-hover: var(--bs-gray-100);
         --color-border-button-hover: var(--bs-gray-500);
         --color-bg-button-selected: var(--color-bg-selected);
 
