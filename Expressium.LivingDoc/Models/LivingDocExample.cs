@@ -10,6 +10,7 @@ namespace Expressium.LivingDoc.Models
         public string Description { get; set; }
         public string Stacktrace { get; set; }
         public TimeSpan Duration { get; set; }
+        public List<string> Comments { get; set; }
 
         public List<LivingDocStep> Steps { get; set; }
         public LivingDocDataTable DataTable { get; set; }
@@ -18,6 +19,7 @@ namespace Expressium.LivingDoc.Models
 
         public LivingDocExample()
         {
+            Comments = new List<string>();
             Steps = new List<LivingDocStep>();
             DataTable = new LivingDocDataTable();
             Attachments = new List<string>();

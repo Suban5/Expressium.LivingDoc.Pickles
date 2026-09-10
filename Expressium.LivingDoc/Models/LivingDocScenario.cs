@@ -14,8 +14,10 @@ namespace Expressium.LivingDoc.Models
         public string Keyword { get; set; }
         public int Order { get; set; }
         public string Health { get; set; }
+        public List<string> Comments { get; set; }
 
         public List<LivingDocExample> Examples { get; set; }
+        public List<LivingDocExample> DocumentationExamples { get; set; }
 
         public LivingDocScenario()
         {
@@ -23,7 +25,9 @@ namespace Expressium.LivingDoc.Models
             Order = 0;
 
             Tags = new List<string>();
+            Comments = new List<string>();
             Examples = new List<LivingDocExample>();
+            DocumentationExamples = new List<LivingDocExample>();
         }
 
         public string GetDataTags()

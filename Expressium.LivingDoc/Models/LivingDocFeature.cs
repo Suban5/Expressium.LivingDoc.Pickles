@@ -13,6 +13,7 @@ namespace Expressium.LivingDoc.Models
         public string Name { get; set; }
         public string Keyword { get; set; }
         public string Uri { get; set; }
+        public List<string> Comments { get; set; }
 
         public LivingDocBackground Background { get; set; }
         public List<LivingDocRule> Rules { get; set; }
@@ -23,6 +24,7 @@ namespace Expressium.LivingDoc.Models
             Id = Guid.NewGuid().ToString();
 
             Tags = new List<string>();
+            Comments = new List<string>();
             Rules = new List<LivingDocRule>();
             Scenarios = new List<LivingDocScenario>();
         }

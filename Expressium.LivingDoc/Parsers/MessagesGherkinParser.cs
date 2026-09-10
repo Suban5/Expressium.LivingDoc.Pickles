@@ -1,5 +1,8 @@
 ﻿using Expressium.LivingDoc.Models;
 using Io.Cucumber.Messages.Types;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 
 namespace Expressium.LivingDoc.Parsers
@@ -29,6 +32,7 @@ namespace Expressium.LivingDoc.Parsers
                         ParseScenario(livingDocFeature, child.Scenario);
                 }
 
+                ParseComments(livingDocFeature, feature, gherkinDocument.Comments);
                 livingDocProject.Features.Add(livingDocFeature);
             }
         }
@@ -120,33 +124,134 @@ namespace Expressium.LivingDoc.Parsers
 
             if (scenario.Examples.Count > 0)
             {
-                // Consolidating Examples as Self-Contained Scenarios...
-                foreach (var example in scenario.Examples)
+                // Keep source Examples sections separate while retaining the first
+                // section in Examples for existing execution and history consumers.
+                foreach (var examples in scenario.Examples)
                 {
-                    int tableIndexId = 1;
-                    foreach (var tableBodyRow in example.TableBody)
-                    {
-                        var livingDocExample = new LivingDocExample
-                        {
-                            Name = example.Name,
-                            Description = example.Description
-                        };
-                        livingDocScenario.Examples.Add(livingDocExample);
+                    var livingDocExample = ParseDocumentationExample(scenario, examples);
+                    livingDocScenario.DocumentationExamples.Add(livingDocExample);
 
-                        ParseScenarioBackgroundSteps(livingDocExample, livingDocFeature, tableIndexId++);
-                        ParseScenarioExampleTableSteps(livingDocExample, scenario, tableBodyRow.Id);
-                        ParseScenarioExampleTableHeaders(livingDocExample, example);
-                        ParseScenarioExampleTableData(livingDocExample, tableBodyRow);
-                    }
+                    if (livingDocScenario.Examples.Count == 0)
+                        livingDocScenario.Examples.Add(livingDocExample);
                 }
             }
             else
             {
                 var livingDocExample = new LivingDocExample();
                 livingDocScenario.Examples.Add(livingDocExample);
+                livingDocScenario.DocumentationExamples.Add(livingDocExample);
 
                 ParseScenarioBackgroundSteps(livingDocExample, livingDocFeature);
                 ParseScenarioExampleSteps(livingDocExample, scenario);
+            }
+        }
+
+        private static LivingDocExample ParseDocumentationExample(Scenario scenario, Examples examples)
+        {
+            var livingDocExample = new LivingDocExample
+            {
+                Name = examples.Name,
+                Description = examples.Description
+            };
+
+            ParseScenarioExampleSteps(livingDocExample, scenario);
+            ParseScenarioExampleTableHeaders(livingDocExample, examples);
+
+            foreach (var tableBodyRow in examples.TableBody)
+                ParseScenarioExampleTableData(livingDocExample, tableBodyRow);
+
+            return livingDocExample;
+        }
+
+        private static void ParseComments(LivingDocFeature livingDocFeature, Feature feature, IList<Comment> comments)
+        {
+            if (comments == null || comments.Count == 0)
+                return;
+
+            var targets = new List<CommentTarget>
+            {
+                new CommentTarget(feature.Location.Line, 0, livingDocFeature.Comments.Add)
+            };
+
+            foreach (var child in feature.Children)
+            {
+                if (child.Background != null && livingDocFeature.Background != null)
+                    AddBackgroundCommentTarget(targets, child.Background, livingDocFeature.Background);
+
+                if (child.Rule != null)
+                    AddRuleCommentTargets(targets, child.Rule, livingDocFeature);
+
+                if (child.Scenario != null)
+                    AddScenarioCommentTargets(targets, child.Scenario, livingDocFeature);
+            }
+
+            foreach (var comment in comments.OrderBy(comment => comment.Location.Line))
+            {
+                var line = comment.Location.Line;
+                var nextTarget = targets
+                    .Where(target => target.Line > line)
+                    .OrderBy(target => target.Line)
+                    .FirstOrDefault();
+
+                var target = nextTarget != null && nextTarget.Line - line <= 1
+                    ? nextTarget
+                    : targets
+                        .Where(candidate => candidate.Line <= line)
+                        .OrderByDescending(candidate => candidate.Line)
+                        .ThenByDescending(candidate => candidate.Depth)
+                        .FirstOrDefault();
+
+                (target ?? targets[0]).Add(comment.Text);
+            }
+        }
+
+        private static void AddBackgroundCommentTarget(List<CommentTarget> targets, Background background, LivingDocBackground livingDocBackground)
+        {
+            targets.Add(new CommentTarget(background.Location.Line, 1, livingDocBackground.Comments.Add));
+        }
+
+        private static void AddRuleCommentTargets(List<CommentTarget> targets, Rule rule, LivingDocFeature livingDocFeature)
+        {
+            var livingDocRule = livingDocFeature.Rules.FirstOrDefault(candidate => candidate.Id == rule.Id);
+            if (livingDocRule == null)
+                return;
+
+            targets.Add(new CommentTarget(rule.Location.Line, 1, livingDocRule.Comments.Add));
+
+            foreach (var child in rule.Children)
+            {
+                if (child.Scenario != null)
+                    AddScenarioCommentTargets(targets, child.Scenario, livingDocFeature);
+            }
+        }
+
+        private static void AddScenarioCommentTargets(List<CommentTarget> targets, Scenario scenario, LivingDocFeature livingDocFeature)
+        {
+            var livingDocScenario = livingDocFeature.Scenarios.FirstOrDefault(candidate => candidate.Id == scenario.Id);
+            if (livingDocScenario == null)
+                return;
+
+            targets.Add(new CommentTarget(scenario.Location.Line, 2, livingDocScenario.Comments.Add));
+
+            for (var index = 0; index < scenario.Examples.Count && index < livingDocScenario.DocumentationExamples.Count; index++)
+            {
+                var examples = scenario.Examples[index];
+                var livingDocExample = livingDocScenario.DocumentationExamples[index];
+                targets.Add(new CommentTarget(examples.Location.Line, 3, livingDocExample.Comments.Add));
+            }
+        }
+
+        private sealed class CommentTarget
+        {
+            internal long Line { get; }
+            internal int Depth { get; }
+            internal Action<string> Add { get; }
+
+            internal CommentTarget(long line, int depth, Action<string> add)
+            {
+                Line = line;
+                Depth = depth;
+                Add = add;
             }
         }
 
