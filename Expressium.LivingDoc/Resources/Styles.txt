@@ -203,6 +203,38 @@
         padding-bottom: 0.50em;
     }
 
+    .scenario-section-body {
+        padding-top: 0.25em;
+    }
+
+    .table-scroll {
+        max-width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+    table.scenario-datatable {
+        width: max-content;
+        min-width: 100%;
+    }
+
+    table.scenario-datatable caption {
+        text-align: left;
+        caption-side: top;
+    }
+
+    .feature-comments,
+    .background-comments,
+    .rule-comments,
+    .scenario-comments,
+    .examples-comments {
+        white-space: pre-wrap;
+        list-style: none;
+        margin: 0.25em 0;
+        padding-left: 0;
+        color: var(--color-text-gray);
+    }
+
     .layout-row {
         display: flex;
         width: 100%;

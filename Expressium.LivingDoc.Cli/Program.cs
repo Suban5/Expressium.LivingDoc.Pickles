@@ -1,4 +1,5 @@
 ﻿using System;
+using Expressium.LivingDoc.Models;
 using System.IO;
 
 namespace Expressium.LivingDoc.Cli
@@ -23,7 +24,7 @@ namespace Expressium.LivingDoc.Cli
 
                 var livingDocConverter = new LivingDocConverter();
                 var livingDocProject = livingDocConverter.Convert(args[2], args[6]);
-                livingDocConverter.Generate(livingDocProject, args[4]);
+                GenerateReport(livingDocConverter, livingDocProject, args[4]);
 
                 Console.WriteLine("Generating LivingDoc Report Completed");
                 Console.WriteLine("");
@@ -38,7 +39,7 @@ namespace Expressium.LivingDoc.Cli
 
                 var livingDocConverter = new LivingDocConverter();
                 var livingDocProject = livingDocConverter.Import(args[2]);
-                livingDocConverter.Generate(livingDocProject, args[4]);
+                GenerateReport(livingDocConverter, livingDocProject, args[4]);
 
                 Console.WriteLine("Generating LivingDoc Report Completed");
                 Console.WriteLine("");
@@ -59,7 +60,7 @@ namespace Expressium.LivingDoc.Cli
                 foreach (var feature in livingDocProject.Features)
                     feature.Uri = null;
 
-                livingDocConverter.Generate(livingDocProject, args[4]);
+                GenerateReport(livingDocConverter, livingDocProject, args[4]);
 
                 Console.WriteLine("Generating LivingDoc Report Completed");
                 Console.WriteLine("");
@@ -77,7 +78,7 @@ namespace Expressium.LivingDoc.Cli
                 var livingDocConverter = new LivingDocConverter();
                 var livingDocProject = livingDocConverter.Convert(args[2], args[7]);
                 livingDocConverter.MergeProject(livingDocProject, args[3]);
-                livingDocConverter.Generate(livingDocProject, args[5]);
+                GenerateReport(livingDocConverter, livingDocProject, args[5]);
 
                 Console.WriteLine("Generating LivingDoc Report Completed");
                 Console.WriteLine("");
@@ -103,7 +104,7 @@ namespace Expressium.LivingDoc.Cli
                 File.Copy(args[2], historyFileName, true);
 
                 livingDocConverter.MergeHistory(livingDocProject, args[3]);
-                livingDocConverter.Generate(livingDocProject, args[5]);
+                GenerateReport(livingDocConverter, livingDocProject, args[5]);
 
                 Console.WriteLine("Generating LivingDoc Report Completed");
                 Console.WriteLine("");
@@ -117,6 +118,16 @@ namespace Expressium.LivingDoc.Cli
                 Console.WriteLine("Expressium.LivingDoc.Cli.exe --merge --input [INPUTPATHMASTER] [INPUTPATHSLAVE] --output [OUTPUTPATH] --title [TITLE]");
                 Console.WriteLine("Expressium.LivingDoc.Cli.exe --history --input [INPUTPATH] [HISTORYPATH] --output [OUTPUTPATH] --title [TITLE]\r\n");
             }
+        }
+
+        private static void GenerateReport(LivingDocConverter converter, LivingDocProject project, string outputPath)
+        {
+            var fullOutputPath = Path.GetFullPath(outputPath);
+            converter.GenerateWithOptions(project, new LivingDocReportOptions
+            {
+                OutputDirectory = Path.GetDirectoryName(fullOutputPath),
+                OutputFileName = Path.GetFileName(fullOutputPath)
+            });
         }
     }
 }

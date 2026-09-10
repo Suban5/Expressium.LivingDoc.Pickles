@@ -14,7 +14,7 @@ namespace Expressium.LivingDoc.Parsers
                 .AddSeconds(timestamp.Seconds)
                 .AddTicks(timestamp.Nanos / 100);
 
-            return dateTime.ToLocalTime();
+            return DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
         }
 
         internal static TimeSpan ToTimeSpan(this Timestamp timestampStart, Timestamp timestampEnd)

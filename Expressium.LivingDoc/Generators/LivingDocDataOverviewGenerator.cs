@@ -114,7 +114,7 @@ namespace Expressium.LivingDoc.Generators
         {
             var listOfLines = new List<string>();
 
-            listOfLines.Add($"<tr data-name='{folder}' data-role='folder'>");
+            listOfLines.Add($"<tr data-name='{folder}' data-role='folder' data-collapse='false'>");
 
             for (var i = 0; i < indent; i++)
                 listOfLines.Add("<td></td>");
@@ -123,7 +123,7 @@ namespace Expressium.LivingDoc.Generators
             listOfLines.Add($"<td class='grid-border' colspan='{NumberOfColumns - indent}'>");
             listOfLines.Add($"<span class='grid-folder-name'>{GetFolderName(folder)}</span>");
             listOfLines.Add("</td>");
-            listOfLines.Add("<td class='grid-border align-right'></td>");
+            listOfLines.Add("<td class='grid-border align-right'><span data-collapse='false' class='grid-toggle bi bi-chevron-down' title='Toggle Folder' onclick=\"loadFolderCollapse(this); event.stopPropagation();\"></span></td>");
 
             listOfLines.Add("</tr>");
 

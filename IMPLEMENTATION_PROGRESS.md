@@ -13,6 +13,8 @@ Enhance Expressium.LivingDoc with a Pickles-like living documentation report whi
 ## Current Phase
 
 [x] Phase 1 - Model and parser fidelity
+[x] Phase 2 - Timestamp, configuration, and history behavior
+[x] Phase 3 - Report rendering and UI interactions
 
 ## Architecture Findings
 
@@ -62,23 +64,23 @@ Enhance Expressium.LivingDoc with a Pickles-like living documentation report whi
 
 - Unit tests cover parser fixtures under `Expressium.LivingDoc.UnitTests/Parsers`, model behavior under `Models`, generator output under `Generators`, and converter behavior under `Converters`.
 - Existing outline tests in `MessagesParserExampleTablesTests.cs` are pre-existing worktree changes and currently assert one template example with placeholders. They must be extended rather than discarded.
-- The UI suite uses Reqnroll feature files and Selenium page objects under `Expressium.LivingDoc.UITests/Features`, `Pages`, `Steps`, and `Controls`.
+- The UI suite uses Reqnroll feature files and Selenium page objects under `Expressium.LivingDoc.UITests/Features`, `Pages`, `Steps`, and `Controls`. Don't run UI test until user told you to do execute it.
 - The current solution test baseline was attempted with `dotnet test expressium-livingdoc.sln --no-restore`. The UI tests are blocked before assertions because Selenium Manager cannot launch Chrome on this runner (`Win32Exception`, native error 35, `Resource temporarily unavailable`). This environment limitation must remain documented while unit tests can provide the primary deterministic coverage.
 - No compatibility test project or explicit net472 build lane currently exists.
 
 ## Requirements Tracking
 
 - [ ] .NET Framework 4.7.2 support while retaining .NET 8. Determine whether the core library can multi-target `net8.0;net472`, and keep Reqnroll/plugin and browser-test projects net8-only if their dependencies cannot support net472. Validate package compatibility before changing target frameworks.
-- [ ] Scenario Outline renders the original outline/template with `<placeholder>` values in the main documentation view.
+- [x] Scenario Outline renders the original outline/template with `<placeholder>` values in the main documentation view.
 - [x] Gherkin comments are preserved at their Feature, Background, Rule, Scenario, and Examples locations where Cucumber Messages exposes them. Added source comment collections and line-based AST association.
 - [x] Multiple Examples sections remain separate, ordered, titled, and column/row-preserving. Added `LivingDocScenario.DocumentationExamples`; legacy `Examples` remains the execution/history collection.
-- [ ] `OutputDirectory` and `OutputFileName` support sensible defaults and relative/absolute paths.
-- [ ] Data tables with approximately 100 columns remain within the page through horizontal scrolling.
-- [ ] Data Table and Examples table headers/first rows toggle their bodies independently.
-- [ ] Root folders and nested subfolders in left navigation expand/collapse independently.
-- [ ] Scenario and Scenario Outline document sections collapse while headings/status remain visible.
-- [ ] `MergeWithHistory: true/false` controls history merging and preserves current default behavior.
-- [ ] Actual execution timestamp is retained with a documented UTC/local display policy; duration arithmetic is timezone-independent.
+- [x] `OutputDirectory` and `OutputFileName` support sensible defaults and relative/absolute paths.
+- [x] Data tables with approximately 100 columns remain within the page through horizontal scrolling.
+- [x] Data Table and Examples table headers/first rows toggle their bodies independently.
+- [x] Root folders and nested subfolders in left navigation expand/collapse independently.
+- [x] Scenario and Scenario Outline document sections collapse while headings/status remain visible.
+- [x] `MergeWithHistory: true/false` controls history merging and preserves current default behavior.
+- [x] Actual execution timestamp is retained with a documented UTC/local display policy; duration arithmetic is timezone-independent.
 - [ ] Tests cover all requested parser, model, generator, configuration, history, timestamp, and UI behaviors.
 
 ## Proposed Implementation Plan
@@ -203,10 +205,10 @@ Likely files:
 3. [x] Confirm untracked parser-project intent and dependency compatibility; it contains only a duplicate untracked parser file and no project file.
 4. [x] Implement model/parser source fidelity
 5. [x] Validate focused parser/model tests
-6. [ ] Implement timestamp and configuration/history options
-7. [ ] Validate converter/history/timestamp tests
-8. [ ] Implement HTML/CSS/JavaScript rendering and toggles
-9. [ ] Validate generator tests and browser tests
+6. [x] Implement timestamp and configuration/history options
+7. [x] Validate converter/history/timestamp tests
+8. [x] Implement HTML/CSS/JavaScript rendering and toggles
+9. [-] Validate generator tests and browser tests
 10. [ ] Implement and validate .NET Framework 4.7.2 targeting strategy
 11. [ ] Update README and final verification
 
@@ -238,7 +240,10 @@ The existing `LivingDocScenario.Examples` property is used by status calculation
 
 ## Final Implementation Summary
 
-Not started. This section will be completed after implementation and verification.
+Phase 2 implemented `LivingDocReportOptions` with normalized output paths and
+history behavior, corrected timestamp arithmetic to use UTC instants, and wired
+the options into the Reqnroll formatter and CLI while retaining legacy output-path
+APIs.
 
 ## Final Supported Targets
 
@@ -246,9 +251,30 @@ Not established yet. The intended result is to retain `net8.0` and add validated
 
 ## Final Configuration Options
 
-Not implemented yet. Planned options: `OutputDirectory`, `OutputFileName`, and `MergeWithHistory`, with backward-compatible aliases/defaults.
+Implemented options: `OutputDirectory`, `OutputFileName`, and `MergeWithHistory`.
+Defaults are `.`, `LivingDoc.html`, and `true`, respectively. Existing explicit
+converter output paths, formatter keys, and CLI argument forms remain supported.
 
 ## Known Limitations / Future Improvements
 
 - Browser validation currently depends on a working Chrome/Selenium Manager environment.
 - Exact Cucumber comment representation and net472 dependency support require validation during implementation.
+
+## Phase 2 Validation
+
+- Focused timestamp and options validation: 8 passed, 0 failed.
+- Focused converter, history, timestamp, and options validation: 19 passed, 0 failed.
+- UI tests remain unrun because Chrome/Selenium execution is environment-blocked.
+
+## Phase 3 Changes
+
+- Rendered Scenario Outline keywords, placeholder steps, comments, and separate named Examples sections.
+- Added semantic table headers, independent table-body toggles, and horizontal scrolling wrappers.
+- Added independent scenario-section and root/nested folder collapse controls.
+- Added generator coverage for outline rendering and embedded toggle scripts.
+
+## Phase 3 Validation
+
+- Focused HTML generator validation: 83 passed, 0 failed.
+- JavaScript syntax validation: 26 script blocks parsed successfully.
+- Browser UI tests remain unrun because Chrome/Selenium execution is environment-blocked.

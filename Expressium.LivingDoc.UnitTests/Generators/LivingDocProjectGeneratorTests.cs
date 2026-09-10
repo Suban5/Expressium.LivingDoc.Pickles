@@ -118,6 +118,9 @@ namespace Expressium.LivingDoc.UnitTests.Generators
             Assert.That(listOfLines.Count, Is.GreaterThan(0));
             Assert.That(listOfLines, Has.Some.Contain("<script>"));
             Assert.That(listOfLines, Has.Some.Contain("</script>"));
+            Assert.That(listOfLines, Has.Some.Contain("function toggleTableBody"));
+            Assert.That(listOfLines, Has.Some.Contain("function toggleScenarioSection"));
+            Assert.That(listOfLines, Has.Some.Contain("function loadFolderCollapse"));
         }
 
         [Test]

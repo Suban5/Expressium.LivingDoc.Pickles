@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 
 namespace Expressium.LivingDoc.Generators
 {
@@ -28,6 +29,7 @@ namespace Expressium.LivingDoc.Generators
                 listOfLines.Add("<div class='section'>");
                 listOfLines.AddRange(GenerateDataFeatureTags(feature));
                 listOfLines.AddRange(GenerateDataFeatureName(feature));
+                listOfLines.AddRange(GenerateDataComments(feature.Comments, "feature-comments"));
                 listOfLines.AddRange(GenerateDataFeatureDescription(feature));
                 listOfLines.AddRange(GenerateDataFeatureBackground(feature));
                 listOfLines.Add("</div>");
@@ -103,6 +105,7 @@ namespace Expressium.LivingDoc.Generators
                 listOfLines.Add("<!-- Data Feature Background -->");
                 listOfLines.Add("<div>");
                 listOfLines.Add("<span class='background-keyword'>Background:</span>");
+                listOfLines.AddRange(GenerateDataComments(feature.Background.Comments, "background-comments"));
                 listOfLines.AddRange(GenerateDataFeatureBackgroundSteps(feature.Background.Steps));
                 listOfLines.Add("</div>");
 
@@ -166,11 +169,14 @@ namespace Expressium.LivingDoc.Generators
                         listOfLines.Add("<div class='section' style='width: fit-content; max-width: 98%'>");
                         listOfLines.AddRange(GenerateDataScenarioTags(scenario));
                         listOfLines.AddRange(GenerateDataScenarioName(scenario, example, indexId));
+                        listOfLines.Add("<div class='scenario-section-body'>");
+                        listOfLines.AddRange(GenerateDataComments(scenario.Comments, "scenario-comments"));
                         listOfLines.AddRange(GenerateDataScenarioDescription(scenario));
                         listOfLines.AddRange(GenerateDataScenarioSteps(example));
-                        listOfLines.AddRange(GenerateDataScenarioExamples(example));
+                        listOfLines.AddRange(GenerateDataScenarioExamples(scenario, example));
                         listOfLines.AddRange(GenerateDataScenarioHistory(example));
                         listOfLines.AddRange(GenerateDataScenarioAttachments(example));
+                        listOfLines.Add("</div>");
 
                         listOfLines.Add("</div>");
                         listOfLines.Add("<hr>");
@@ -195,6 +201,7 @@ namespace Expressium.LivingDoc.Generators
 
             listOfLines.AddRange(GenerateDataRuleTags(rule));
             listOfLines.AddRange(GenerateDataRuleName(rule));
+            listOfLines.AddRange(GenerateDataComments(rule.Comments, "rule-comments"));
             listOfLines.AddRange(GenerateDataRuleDescription(rule));
 
             listOfLines.Add("<hr>");
@@ -282,13 +289,15 @@ namespace Expressium.LivingDoc.Generators
             var symbol = LivingDocDataUtilitiesGenerator.GetStatusSymbol(status);
             listOfLines.Add($"<span class='{symbol} color-{status} status-symbol'></span>");
 
-            listOfLines.Add("<span class='scenario-keyword'>Scenario: </span>");
+            var keyword = string.IsNullOrWhiteSpace(scenario.Keyword) ? "Scenario" : scenario.Keyword;
+            listOfLines.Add($"<span class='scenario-keyword'>{keyword}: </span>");
             listOfLines.Add("<span class='scenario-name'>" + scenario.Name + "</span>");
 
             if (!string.IsNullOrEmpty(indexId))
                 listOfLines.Add($"<span class='scenario-badge'>{indexId}</span>");
 
             listOfLines.Add($"<span class='scenario-duration'>{example.GetDuration()}</span>");
+            listOfLines.Add("<button class='scenario-section-toggle bi bi-chevron-up' title='Toggle Scenario' onclick=\"toggleScenarioSection(this)\"></button>");
 
             ///////////////////////////////////////////////////////
             // Toggle option for visibility of Background steps...
@@ -392,7 +401,7 @@ namespace Expressium.LivingDoc.Generators
             if (step.DataTable.Rows.Count > 0)
             {
                 listOfLines.Add("<!-- Scenario Steps Data Table Section -->");
-                listOfLines.Add($"<div class='steps-datatable'>");
+                listOfLines.Add($"<div class='steps-datatable table-scroll'>");
                 listOfLines.AddRange(GenerateDataScenarioDataTable(step.DataTable));
                 listOfLines.Add("</div>");
             }
@@ -465,17 +474,28 @@ namespace Expressium.LivingDoc.Generators
 
         internal List<string> GenerateDataScenarioExamples(LivingDocExample example)
         {
+            return GenerateDataScenarioExamples(null, example);
+        }
+
+        internal List<string> GenerateDataScenarioExamples(LivingDocScenario scenario, LivingDocExample executionExample)
+        {
             var listOfLines = new List<string>();
 
-            if (example.HasDataTable())
+            var examples = scenario?.DocumentationExamples;
+            if (examples == null || examples.Count == 0)
+                examples = new List<LivingDocExample> { executionExample };
+
+            foreach (var example in examples.Where(example => example.HasDataTable()))
             {
                 listOfLines.Add("<!-- Data Scenario Examples -->");
                 listOfLines.Add("<div>");
                 listOfLines.Add("<span class='examples-keyword'>Examples: </span>");
-                //listOfLines.Add($"<span class='examples-name'>{example.Name}</span>");
+                if (!string.IsNullOrWhiteSpace(example.Name))
+                    listOfLines.Add($"<span class='examples-name'>{WebUtility.HtmlEncode(example.Name)}</span>");
+                listOfLines.AddRange(GenerateDataComments(example.Comments, "examples-comments"));
                 if (!string.IsNullOrEmpty(example.Description))
-                    listOfLines.Add($"<br><span class='examples-description'>{example.Description}</span>");
-                listOfLines.Add("<div class='examples-datatable'>");
+                    listOfLines.Add($"<br><span class='examples-description'>{WebUtility.HtmlEncode(example.Description)}</span>");
+                listOfLines.Add("<div class='examples-datatable table-scroll'>");
                 listOfLines.AddRange(GenerateDataScenarioDataTable(example.DataTable));
                 listOfLines.Add("</div>");
                 listOfLines.Add("</div>");
@@ -489,9 +509,26 @@ namespace Expressium.LivingDoc.Generators
             var listOfLines = new List<string>();
 
             listOfLines.Add("<table class='scenario-datatable'>");
-            listOfLines.Add("<tbody>");
+            listOfLines.Add("<caption><button class='table-toggle bi bi-chevron-up' title='Toggle Table Rows' onclick=\"toggleTableBody(this)\"></button></caption>");
 
-            foreach (var row in dataTable.Rows)
+            var header = dataTable.Rows.FirstOrDefault();
+            if (header != null)
+            {
+                listOfLines.Add("<thead>");
+                listOfLines.Add("<tr>");
+                foreach (var cell in header.Cells)
+                {
+                    listOfLines.Add("<th>|</th>");
+                    listOfLines.Add("<th>" + cell + "</th>");
+                }
+                listOfLines.Add("<th>|</th>");
+                listOfLines.Add("</tr>");
+                listOfLines.Add("</thead>");
+            }
+
+            listOfLines.Add("<tbody data-table-body>");
+
+            foreach (var row in dataTable.Rows.Skip(1))
             {
                 var numberOfCells = row.Cells.Count;
                 int i = 1;
@@ -512,6 +549,20 @@ namespace Expressium.LivingDoc.Generators
 
             listOfLines.Add("</tbody>");
             listOfLines.Add("</table>");
+
+            return listOfLines;
+        }
+
+        internal List<string> GenerateDataComments(List<string> comments, string cssClass)
+        {
+            var listOfLines = new List<string>();
+            if (comments == null || comments.Count == 0)
+                return listOfLines;
+
+            listOfLines.Add($"<ul class='{cssClass}'>");
+            foreach (var comment in comments)
+                listOfLines.Add($"<li># {WebUtility.HtmlEncode(comment)}</li>");
+            listOfLines.Add("</ul>");
 
             return listOfLines;
         }

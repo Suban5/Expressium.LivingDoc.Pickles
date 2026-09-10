@@ -38,11 +38,20 @@ dotnet add package Expressium.LivingDoc.ReqnrollPlugin
   "formatters": {
     "expressium": {
       "outputFilePath": "LivingDoc.ndjson",
-      "outputFileTitle": "Expressium.Coffeeshop.Web.API.Tests"
+      "outputFileTitle": "Expressium.Coffeeshop.Web.API.Tests",
+      "outputDirectory": ".",
+      "outputFileName": "LivingDoc.html",
+      "mergeWithHistory": true
     }
   }
 }
 ```
+
+`outputDirectory` and `outputFileName` control the generated HTML path and support
+relative or absolute values. `mergeWithHistory` defaults to `true` when `historyPath`
+is configured; set it to `false` to generate the current report without importing
+historical results. Execution timestamps are retained as UTC instants and displayed
+as GMT values in the report.
 
 ## History Analysis
 The Expressium LivingDoc report can optionally include historical test results 

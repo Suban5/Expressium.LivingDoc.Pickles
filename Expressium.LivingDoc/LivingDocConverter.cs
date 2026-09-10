@@ -113,6 +113,16 @@ namespace Expressium.LivingDoc
             }
         }
 
+        public void GenerateWithOptions(LivingDocProject livingDocProject, LivingDocReportOptions options)
+        {
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+
+            var outputPath = options.ResolveOutputPath();
+            Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+            Generate(livingDocProject, outputPath);
+        }
+
         /// <summary>
         /// Merge a Cucumber Messages NDJSON file into an exiting LivingDoc object.
         /// </summary>

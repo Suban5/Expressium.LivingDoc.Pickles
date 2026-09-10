@@ -1,6 +1,7 @@
 ﻿using Reqnroll.Formatters.Configuration;
 using Reqnroll.Formatters.RuntimeSupport;
 using Reqnroll.Utils;
+using Expressium.LivingDoc.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +13,7 @@ namespace Expressium.LivingDoc.ReqnrollPlugin
         public string OutputFilePath { get; private set; }
         public string OutputFileTitle { get; private set; }
         public string HistoryPath { get; private set; }
+        public LivingDocReportOptions ReportOptions { get; private set; }
 
         public ExpressiumFormatter(IFormattersConfigurationProvider configurationProvider, IFormatterLog logger, IFileSystem fileSystem) : base(configurationProvider, logger, fileSystem, "expressium")
         {
@@ -27,13 +29,20 @@ namespace Expressium.LivingDoc.ReqnrollPlugin
 
             if (formatterConfiguration.ContainsKey("historyPath"))
                 HistoryPath = formatterConfiguration["historyPath"].ToString();
+
+            ReportOptions = new LivingDocReportOptions
+            {
+                OutputDirectory = GetConfigurationValue(formatterConfiguration, "outputDirectory", Path.GetDirectoryName(Path.GetFullPath(OutputFilePath))),
+                OutputFileName = GetConfigurationValue(formatterConfiguration, "outputFileName", Path.ChangeExtension(Path.GetFileName(OutputFilePath), ".html")),
+                MergeWithHistory = GetBooleanConfigurationValue(formatterConfiguration, "mergeWithHistory", true)
+            };
         }
 
         public override void Dispose()
         {
             base.Dispose();
 
-            if (!string.IsNullOrWhiteSpace(HistoryPath))
+            if (!string.IsNullOrWhiteSpace(HistoryPath) && ReportOptions.MergeWithHistory)
             {
                 var livingDocConverter = new LivingDocConverter();
                 var livingDocProject = livingDocConverter.Convert(OutputFilePath, OutputFileTitle);
@@ -47,17 +56,27 @@ namespace Expressium.LivingDoc.ReqnrollPlugin
 
                 livingDocConverter.MergeHistory(livingDocProject, HistoryPath);
 
-                var outputHtmlFilePath = OutputFilePath.Replace(Path.GetExtension(OutputFilePath), ".html");
-                livingDocConverter.Generate(livingDocProject, outputHtmlFilePath);
+                livingDocConverter.GenerateWithOptions(livingDocProject, ReportOptions);
             }
             else
             {
-                var outputHtmlFilePath = OutputFilePath.Replace(Path.GetExtension(OutputFilePath), ".html");
-
                 var livingDocConverter = new LivingDocConverter();
                 var livingDocProject = livingDocConverter.Convert(OutputFilePath, OutputFileTitle);
-                livingDocConverter.Generate(livingDocProject, outputHtmlFilePath);
+                livingDocConverter.GenerateWithOptions(livingDocProject, ReportOptions);
             }
+        }
+
+        private static string GetConfigurationValue(IDictionary<string, object> configuration, string key, string defaultValue)
+        {
+            return configuration.ContainsKey(key) && configuration[key] != null
+                ? configuration[key].ToString()
+                : defaultValue;
+        }
+
+        private static bool GetBooleanConfigurationValue(IDictionary<string, object> configuration, string key, bool defaultValue)
+        {
+            var value = GetConfigurationValue(configuration, key, defaultValue.ToString());
+            return bool.TryParse(value, out var result) ? result : defaultValue;
         }
     }
 }

@@ -51,6 +51,62 @@ namespace Expressium.LivingDoc.UnitTests.Generators
         }
 
         [Test]
+        public void LivingDocDataObjectsGenerator_RendersOutlineKeywordAndSeparateExamplesSections()
+        {
+            var scenario = new LivingDocScenario
+            {
+                Keyword = "Scenario Outline",
+                Name = "Search for <term>",
+                Comments = new List<string> { "Scenario note" },
+                Examples = new List<LivingDocExample> { new LivingDocExample() },
+                DocumentationExamples = new List<LivingDocExample>
+                {
+                    new LivingDocExample
+                    {
+                        Name = "Valid terms",
+                        Comments = new List<string> { "First examples note" },
+                        DataTable = new LivingDocDataTable
+                        {
+                            Rows = new List<LivingDocDataTableRow>
+                            {
+                                new LivingDocDataTableRow { Cells = new List<string> { "term" } },
+                                new LivingDocDataTableRow { Cells = new List<string> { "coffee" } }
+                            }
+                        }
+                    },
+                    new LivingDocExample
+                    {
+                        Name = "Invalid terms",
+                        DataTable = new LivingDocDataTable
+                        {
+                            Rows = new List<LivingDocDataTableRow>
+                            {
+                                new LivingDocDataTableRow { Cells = new List<string> { "term" } },
+                                new LivingDocDataTableRow { Cells = new List<string> { "" } }
+                            }
+                        }
+                    }
+                }
+            };
+            scenario.Examples[0].Steps.Add(new LivingDocStep { Keyword = "When", Name = "I search" });
+
+            var feature = new LivingDocFeature { Name = "Search" };
+            feature.Scenarios.Add(scenario);
+            var generator = new LivingDocDataObjectsGenerator(new LivingDocProject
+            {
+                Features = new List<LivingDocFeature> { feature }
+            });
+
+            var listOfLines = generator.GenerateDataScenarios();
+
+            Assert.That(listOfLines, Has.Some.Contains("<span class='scenario-keyword'>Scenario Outline: </span>"));
+            Assert.That(listOfLines, Has.Some.Contains("<span class='examples-name'>Valid terms</span>"));
+            Assert.That(listOfLines, Has.Some.Contains("<span class='examples-name'>Invalid terms</span>"));
+            Assert.That(listOfLines, Has.Some.Contains("<li># Scenario note</li>"));
+            Assert.That(listOfLines, Has.Some.Contains("<li># First examples note</li>"));
+        }
+
+        [Test]
         public void LivingDocDataObjectsGenerator_GenerateDataScenarioDescription()
         {
             var livingDocProject = new LivingDocProject();
@@ -396,7 +452,7 @@ namespace Expressium.LivingDoc.UnitTests.Generators
             var generator = new LivingDocDataObjectsGenerator(livingDocProject);
             var listOfLines = generator.GenerateDataScenarioName(scenario, example, "5");
 
-            Assert.That(listOfLines.Count, Is.EqualTo(8));
+            Assert.That(listOfLines.Count, Is.EqualTo(9));
             Assert.That(listOfLines[0], Is.EqualTo("<!-- Data Scenario Name -->"));
             Assert.That(listOfLines[1], Is.EqualTo("<div>"));
             Assert.That(listOfLines[2], Is.EqualTo("<span class='bi bi-dash-circle-fill color-skipped status-symbol'></span>"));
@@ -404,7 +460,8 @@ namespace Expressium.LivingDoc.UnitTests.Generators
             Assert.That(listOfLines[4], Is.EqualTo("<span class='scenario-name'>Scenario Name</span>"));
             Assert.That(listOfLines[5], Is.EqualTo("<span class='scenario-badge'>5</span>"));
             Assert.That(listOfLines[6], Is.EqualTo("<span class='scenario-duration'>1s 500ms</span>"));
-            Assert.That(listOfLines[7], Is.EqualTo("</div>"));
+            Assert.That(listOfLines[7], Does.Contain("scenario-section-toggle"));
+            Assert.That(listOfLines[8], Is.EqualTo("</div>"));
         }
 
         [Test]
@@ -521,10 +578,11 @@ namespace Expressium.LivingDoc.UnitTests.Generators
             var listOfLines = generator.GenerateDataScenarioStep(step);
 
             Assert.That(listOfLines, Does.Contain("<!-- Scenario Steps Data Table Section -->"));
-            Assert.That(listOfLines, Does.Contain("<div class='steps-datatable'>"));
+            Assert.That(listOfLines, Does.Contain("<div class='steps-datatable table-scroll'>"));
             Assert.That(listOfLines, Does.Contain("<table class='scenario-datatable'>"));
-            Assert.That(listOfLines, Does.Contain("<td>username</td>"));
-            Assert.That(listOfLines, Does.Contain("<td>password</td>"));
+            Assert.That(listOfLines, Does.Contain("<th>username</th>"));
+            Assert.That(listOfLines, Does.Contain("<th>password</th>"));
+            Assert.That(listOfLines, Has.Some.Contains("<caption><button class='table-toggle"));
         }
 
         [Test]
@@ -724,10 +782,10 @@ namespace Expressium.LivingDoc.UnitTests.Generators
             var generator = new LivingDocDataObjectsGenerator(livingDocProject);
             var listOfLines = generator.GenerateDataScenarioExamples(examples);
 
-            Assert.That(listOfLines.Count, Is.EqualTo(17));
+            Assert.That(listOfLines.Count, Is.EqualTo(20));
             Assert.That(listOfLines[0], Is.EqualTo("<!-- Data Scenario Examples -->"));
-            Assert.That(listOfLines[8], Is.EqualTo("<td>username</td>"));
-            Assert.That(listOfLines[10], Is.EqualTo("<td>password</td>"));
+            Assert.That(listOfLines, Does.Contain("<th>username</th>"));
+            Assert.That(listOfLines, Does.Contain("<th>password</th>"));
         }
 
         [Test]
@@ -753,9 +811,9 @@ namespace Expressium.LivingDoc.UnitTests.Generators
             var listOfLines = generator.GenerateDataScenarioDataTable(dataTable);
 
             Assert.That(listOfLines[0], Is.EqualTo("<table class='scenario-datatable'>"));
-            Assert.That(listOfLines, Does.Contain("<td>username</td>"));
-            Assert.That(listOfLines, Does.Contain("<td>password</td>"));
-            Assert.That(listOfLines.FindAll(l => l == "<td>|</td>").Count, Is.EqualTo(3));
+            Assert.That(listOfLines, Does.Contain("<th>username</th>"));
+            Assert.That(listOfLines, Does.Contain("<th>password</th>"));
+            Assert.That(listOfLines.FindAll(l => l == "<th>|</th>").Count, Is.EqualTo(3));
         }
 
         [Test]

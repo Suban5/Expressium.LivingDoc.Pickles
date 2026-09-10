@@ -623,6 +623,76 @@
         }
     </script>
     <script>
+        function toggleTableBody(x) {
+            var table = x.closest('table');
+            if (!table) return;
+
+            var body = table.querySelector('[data-table-body]');
+            if (!body) return;
+
+            var collapsed = body.style.display === "none";
+            body.style.display = collapsed ? "" : "none";
+            x.innerHTML = collapsed
+                ? "<span class='bi bi-chevron-up'></span>"
+                : "<span class='bi bi-chevron-down'></span>";
+        }
+    </script>
+    <script>
+        function toggleScenarioSection(x) {
+            var section = x.closest('.section');
+            if (!section) return;
+
+            var body = section.querySelector('.scenario-section-body');
+            if (!body) return;
+
+            var collapsed = body.style.display === "none";
+            body.style.display = collapsed ? "" : "none";
+            x.innerHTML = collapsed
+                ? "<span class='bi bi-chevron-up'></span>"
+                : "<span class='bi bi-chevron-down'></span>";
+        }
+    </script>
+    <script>
+        function isFolderDescendant(path, candidate) {
+            return candidate && candidate !== path && candidate.indexOf(path + "\\") === 0;
+        }
+
+        function isFolderContent(path, candidate) {
+            return candidate === path || isFolderDescendant(path, candidate);
+        }
+
+        function loadFolderCollapse(x) {
+            var row = x.closest('tr');
+            if (!row) return;
+
+            var path = row.getAttribute('data-name');
+            var collapsed = row.getAttribute('data-collapse') === "true";
+            row.setAttribute('data-collapse', collapsed ? "false" : "true");
+            x.setAttribute('data-collapse', collapsed ? "false" : "true");
+            x.className = collapsed
+                ? "grid-toggle bi bi-chevron-down"
+                : "grid-toggle bi bi-chevron-right";
+
+            var rows = document.querySelectorAll('#table-list tr');
+            for (var i = 0; i < rows.length; i++) {
+                var candidate = rows[i];
+                var role = candidate.getAttribute('data-role');
+                var hidden = false;
+
+                if (role === "folder") {
+                    hidden = isFolderDescendant(path, candidate.getAttribute('data-name'));
+                } else if (role === "feature" || role === "scenario") {
+                    var featureId = candidate.getAttribute('data-featureid');
+                    var feature = document.querySelector("#table-list tr[data-role='feature'][data-featureid='" + featureId + "']");
+                    hidden = feature && isFolderContent(path, feature.getAttribute('data-parent'));
+                }
+
+                if (hidden)
+                    candidate.style.display = collapsed ? "none" : "";
+            }
+        }
+    </script>
+    <script>
         function onloadFilter() {
             const filter = new URLSearchParams(window.location.search).get('filterByKeywords');
             if (!filter) 
