@@ -25,6 +25,8 @@ Enhance Expressium.LivingDoc with a Pickles-like living documentation report whi
 - `Expressium.LivingDoc.ReqnrollPlugin/Expressium.LivingDoc.ReqnrollPlugin.csproj` is a `net8.0` Reqnroll formatter/plugin package and references the core library.
 - `Expressium.LivingDoc.UnitTests/Expressium.LivingDoc.UnitTests.csproj` is a `net8.0` NUnit test project covering models, parsers, generators, converters, and samples.
 - `Expressium.LivingDoc.UITests/Expressium.LivingDoc.UITests.csproj` is a `net8.0` Reqnroll/Selenium NUnit project for browser-level report behavior.
+- `Expressium.LivingDoc.Net472Tests/Expressium.LivingDoc.Net472Tests.csproj` is a focused `net472` NUnit smoke-test project for core runtime compatibility on Windows.
+- `Expressium.LivingDoc.ReqnrollCompatibilityTests/Expressium.LivingDoc.ReqnrollCompatibilityTests.csproj` is a `net8.0` Reqnroll fixture that validates formatter execution and report generation without browser dependencies.
 - `Directory.Build.props` contains shared package metadata but no target-framework or compatibility policy.
 - `expressium-livingdoc.sln` contains the five projects above. An untracked `Expressium.LivingDoc.Parsers/` directory is present in the worktree and must be reviewed before implementation because it may represent an in-progress extraction.
 
@@ -66,11 +68,11 @@ Enhance Expressium.LivingDoc with a Pickles-like living documentation report whi
 - Existing outline tests in `MessagesParserExampleTablesTests.cs` are pre-existing worktree changes and currently assert one template example with placeholders. They must be extended rather than discarded.
 - The UI suite uses Reqnroll feature files and Selenium page objects under `Expressium.LivingDoc.UITests/Features`, `Pages`, `Steps`, and `Controls`. Don't run UI test until user told you to do execute it.
 - The current solution test baseline was attempted with `dotnet test expressium-livingdoc.sln --no-restore`. The UI tests are blocked before assertions because Selenium Manager cannot launch Chrome on this runner (`Win32Exception`, native error 35, `Resource temporarily unavailable`). This environment limitation must remain documented while unit tests can provide the primary deterministic coverage.
-- No compatibility test project or explicit net472 build lane currently exists.
+- The Windows GitHub Actions workflow contains separate `net472` core smoke-test and Reqnroll report-generation jobs.
 
 ## Requirements Tracking
 
-- [ ] .NET Framework 4.7.2 support while retaining .NET 8. Determine whether the core library can multi-target `net8.0;net472`, and keep Reqnroll/plugin and browser-test projects net8-only if their dependencies cannot support net472. Validate package compatibility before changing target frameworks.
+- [x] .NET Framework 4.7.2 support while retaining .NET 8. The core library now targets `net8.0;net472`; `AngleSharp`, `Cucumber.Messages`, and `System.Text.Json` restore and compile for both targets. Reqnroll/plugin and browser-test projects remain net8-only. Runtime validation of net472 must run on Windows.
 - [x] Scenario Outline renders the original outline/template with `<placeholder>` values in the main documentation view.
 - [x] Gherkin comments are preserved at their Feature, Background, Rule, Scenario, and Examples locations where Cucumber Messages exposes them. Added source comment collections and line-based AST association.
 - [x] Multiple Examples sections remain separate, ordered, titled, and column/row-preserving. Added `LivingDocScenario.DocumentationExamples`; legacy `Examples` remains the execution/history collection.
@@ -209,7 +211,7 @@ Likely files:
 7. [x] Validate converter/history/timestamp tests
 8. [x] Implement HTML/CSS/JavaScript rendering and toggles
 9. [-] Validate generator tests and browser tests
-10. [ ] Implement and validate .NET Framework 4.7.2 targeting strategy
+10. [x] Implement and validate .NET Framework 4.7.2 targeting strategy
 11. [ ] Update README and final verification
 
 ## Baseline Results
@@ -247,7 +249,9 @@ APIs.
 
 ## Final Supported Targets
 
-Not established yet. The intended result is to retain `net8.0` and add validated `.NET Framework 4.7.2` support to the compatible component(s), with any necessary target split documented here.
+The core `Expressium.LivingDoc` library targets `net8.0;net472`.
+The Reqnroll plugin, CLI, unit tests, and UI tests remain `net8.0` because their
+dependency graphs are not validated for `.NET Framework 4.7.2`.
 
 ## Final Configuration Options
 
@@ -259,6 +263,7 @@ converter output paths, formatter keys, and CLI argument forms remain supported.
 
 - Browser validation currently depends on a working Chrome/Selenium Manager environment.
 - Exact Cucumber comment representation and net472 dependency support require validation during implementation.
+- net472 runtime tests require a Windows environment with the .NET Framework 4.7.2 runtime; this macOS runner only provides compile validation through reference assemblies.
 
 ## Phase 2 Validation
 
@@ -278,3 +283,12 @@ converter output paths, formatter keys, and CLI argument forms remain supported.
 - Focused HTML generator validation: 83 passed, 0 failed.
 - JavaScript syntax validation: 26 script blocks parsed successfully.
 - Browser UI tests remain unrun because Chrome/Selenium execution is environment-blocked.
+
+## Phase 4 Validation
+
+- Core library build: `net8.0` passed.
+- Core library build: `net472` passed using `Microsoft.NETFramework.ReferenceAssemblies`.
+- Full solution build: passed for the core, CLI, Reqnroll plugin, unit tests, and UI tests.
+- Local Reqnroll fixture validation: 3 passed, including one regular Scenario and two Scenario Outline examples; HTML and NDJSON artifacts generated successfully.
+- Windows runtime validation for `net472` is configured in the `net472-compatibility` GitHub Actions job.
+- The `reqnroll-livingdoc-report` GitHub Actions job is configured to publish the generated report artifact.

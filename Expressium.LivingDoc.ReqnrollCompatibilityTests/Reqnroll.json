@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.reqnroll.net/reqnroll-config-latest.json",
+  "formatters": {
+    "expressium": {
+      "outputFilePath": "artifacts/LivingDoc.ndjson",
+      "outputFileTitle": "Expressium LivingDoc Reqnroll Compatibility",
+      "outputDirectory": "artifacts",
+      "outputFileName": "LivingDoc.html",
+      "mergeWithHistory": false
+    }
+  }
+}

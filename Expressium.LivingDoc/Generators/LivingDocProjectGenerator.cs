@@ -61,7 +61,7 @@ namespace Expressium.LivingDoc.Generators
 
         internal List<string> GenerateHeads()
         {
-            return Resources.Heads.Split(Environment.NewLine).ToList();
+            return Resources.Heads.Split(new[] { Environment.NewLine }, StringSplitOptions.None).ToList();
         }
 
         internal List<string> GenerateProperties()
@@ -77,12 +77,12 @@ namespace Expressium.LivingDoc.Generators
 
         internal List<string> GenerateStyles()
         {
-            return Resources.Styles.Split(Environment.NewLine).ToList();
+            return Resources.Styles.Split(new[] { Environment.NewLine }, StringSplitOptions.None).ToList();
         }
 
         internal List<string> GenerateScripts()
         {
-            return Resources.Scripts.Split(Environment.NewLine).ToList();
+            return Resources.Scripts.Split(new[] { Environment.NewLine }, StringSplitOptions.None).ToList();
         }
 
         internal List<string> GenerateBodyHeader()

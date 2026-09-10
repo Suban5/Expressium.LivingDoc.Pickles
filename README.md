@@ -9,6 +9,14 @@ It transforms automated test results into meaningful insights and living documen
 The generated test report can be shared with quality and product stakeholders, 
 providing clear visibility into the current state of product quality.
 
+## Target Frameworks
+
+The `Expressium.LivingDoc` core library targets `.NET 8.0` and `.NET Framework 4.7.2`.
+The Reqnroll plugin, CLI, unit tests, and UI tests target `.NET 8.0` because their
+Reqnroll and test dependencies are not part of the `.NET Framework` compatibility target.
+The core library has been compile-validated for both targets. Running `.NET Framework 4.7.2`
+applications and tests requires Windows with the .NET Framework runtime installed.
+
 <br />
 <p align="center">
 <img src="LivingDoc.png"
@@ -52,6 +60,11 @@ relative or absolute values. `mergeWithHistory` defaults to `true` when `history
 is configured; set it to `false` to generate the current report without importing
 historical results. Execution timestamps are retained as UTC instants and displayed
 as GMT values in the report.
+
+The repository includes a small Reqnroll compatibility fixture containing both a
+regular Scenario and a Scenario Outline. Its Windows GitHub Actions job executes the
+fixture and publishes the generated `LivingDoc.html` and `LivingDoc.ndjson` files as
+the `expressium-livingdoc-reqnroll-report` artifact.
 
 ## History Analysis
 The Expressium LivingDoc report can optionally include historical test results 

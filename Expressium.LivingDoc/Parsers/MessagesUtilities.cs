@@ -8,7 +8,7 @@ namespace Expressium.LivingDoc.Parsers
     {
         internal static DateTime ToDateTime(this Timestamp timestamp)
         {
-            var epoch = DateTime.UnixEpoch;
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
             var dateTime = epoch
                 .AddSeconds(timestamp.Seconds)

@@ -72,7 +72,7 @@ namespace Expressium.LivingDoc.Generators
             listOfLines.Add("</div>");
 
             listOfLines.Add("<!-- Content Splitter Script -->");
-            listOfLines.AddRange(Resources.Splitter.Split(Environment.NewLine).ToList());
+            listOfLines.AddRange(Resources.Splitter.Split(new[] { Environment.NewLine }, StringSplitOptions.None).ToList());
 
             return listOfLines;
         }

@@ -209,7 +209,7 @@ namespace Expressium.LivingDoc.Generators
 
         internal static string GetFolderName(string folder)
         {
-            return folder?.Split("\\").LastOrDefault() ?? string.Empty;
+            return folder?.Split('\\').LastOrDefault() ?? string.Empty;
         }
 
         internal static int GetFolderDepth(string folder)

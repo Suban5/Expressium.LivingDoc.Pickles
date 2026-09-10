@@ -83,7 +83,7 @@ namespace Expressium.LivingDoc.Generators
                 listOfLines.Add("<div>");
                 listOfLines.Add("<ul class='feature-description'>");
 
-                var listOfDescription = feature.Description.Trim().Split("\n");
+                var listOfDescription = feature.Description.Trim().Split('\n');
                 foreach (var line in listOfDescription)
                     listOfLines.Add("<li>" + line.Trim() + "</li>");
 
@@ -249,7 +249,7 @@ namespace Expressium.LivingDoc.Generators
                 listOfLines.Add("<div>");
                 listOfLines.Add("<ul class='rule-description'>");
 
-                var listOfDescription = rule.Description.Trim().Split("\n");
+                var listOfDescription = rule.Description.Trim().Split('\n');
                 foreach (var line in listOfDescription)
                     listOfLines.Add("<li>" + line.Trim() + "</li>");
 
@@ -330,7 +330,7 @@ namespace Expressium.LivingDoc.Generators
                 listOfLines.Add("<div>");
                 listOfLines.Add("<ul class='scenario-description'>");
 
-                var listOfDescription = scenario.Description.Trim().Split("\n");
+                var listOfDescription = scenario.Description.Trim().Split('\n');
                 foreach (var line in listOfDescription)
                     listOfLines.Add("<li>" + line.Trim() + "</li>");
 

@@ -193,7 +193,7 @@ namespace Expressium.LivingDoc.Parsers
                     .OrderBy(target => target.Line)
                     .FirstOrDefault();
 
-                var target = nextTarget != null && nextTarget.Line - line <= 1
+                var selectedTarget = nextTarget != null && nextTarget.Line - line <= 1
                     ? nextTarget
                     : targets
                         .Where(candidate => candidate.Line <= line)
@@ -201,7 +201,7 @@ namespace Expressium.LivingDoc.Parsers
                         .ThenByDescending(candidate => candidate.Depth)
                         .FirstOrDefault();
 
-                (target ?? targets[0]).Add(comment.Text);
+                (selectedTarget ?? targets[0]).Add(comment.Text);
             }
         }
 
